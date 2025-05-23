@@ -1,0 +1,31 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    labels:
+      - "autoheal=true"
+    volumes:
+      - open-webui:/app/backend/data
+    ports:
+      - 3000:8080
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+  
+  # Health Check
+  autoheal:
+    image: willfarrell/autoheal
+    container_name: autoheal
+    restart: always
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  open-webui:
+    driver: local
+    driver_opts:
+      type: none
+      device: "$PWD/data"
+      o: bind
